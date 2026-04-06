@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "f510bd55-94f8-471a-826d-2d4e8c15ae4d",
+		"name": "Task Management Auth System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"John Doe\",\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"Password123\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7198/api/Auth/register",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"Auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"jwt_token\", jsonData.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"johndoe@example.com\",\r\n  \"password\": \"Password123\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7198/api/Auth/login",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"Auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "https://localhost:7198/api/User/profile",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"User",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"John Doe Updated\",\r\n  \"profilePhotoUrl\": \"https://example.com/photo.jpg\",\r\n  \"oldPassword\": \"Password123\",\r\n  \"newPassword\": \"NewPassword123\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7198/api/User/profile",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"User",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"item": [
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"johndoe@example.com\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7198/api/Password/forgot",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"Password",
+								"forgot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"token\": \"<TOKEN_FROM_EMAIL_CONSOLE>\",\r\n  \"newPassword\": \"NewPassword123\"\r\n}"
+						},
+						"url": {
+							"raw": "https://localhost:7198/api/Password/reset",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7198",
+							"path": [
+								"api",
+								"Password",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
