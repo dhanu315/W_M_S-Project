@@ -54,5 +54,31 @@ namespace W_M_S_Project.Repositories
             _context.PasswordResetTokens.Update(token);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<(System.Collections.Generic.IEnumerable<User> Users, int TotalCount)> GetUsersAsync(int page, int limit, string? search)
+        {
+            var query = _context.Users.Include(u => u.Role).AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.Name.Contains(search) || u.Email.Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+            var users = await query.Skip((page - 1) * limit).Take(limit).ToListAsync();
+
+            return (users, totalCount);
+        }
+
+        public async Task DeleteUserAsync(User user)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Role?> GetRoleByNameAsync(string roleName)
+        {
+            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+        }
     }
 }

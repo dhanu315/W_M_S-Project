@@ -10,6 +10,10 @@ namespace W_M_S_Project.Models
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string? ProfilePhotoUrl { get; set; }
+        
+        public string Status { get; set; } = "Active"; // Active, Inactive
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;

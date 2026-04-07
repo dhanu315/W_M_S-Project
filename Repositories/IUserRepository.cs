@@ -12,5 +12,8 @@ namespace W_M_S_Project.Repositories
         Task SavePasswordResetTokenAsync(PasswordResetToken token);
         Task<PasswordResetToken?> GetPasswordResetTokenAsync(string token);
         Task UpdatePasswordResetTokenAsync(PasswordResetToken token);
+        Task<(System.Collections.Generic.IEnumerable<User> Users, int TotalCount)> GetUsersAsync(int page, int limit, string? search);
+        Task DeleteUserAsync(User user);
+        Task<Role?> GetRoleByNameAsync(string roleName);
     }
 }
