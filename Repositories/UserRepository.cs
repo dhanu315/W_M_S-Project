@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using W_M_S_Project.Data;
 using W_M_S_Project.Models;
@@ -14,26 +16,65 @@ namespace W_M_S_Project.Repositories
             _context = context;
         }
 
-        public async Task<User?> GetUserByEmailAsync(string email)
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users
+                .Include(u => u.Role)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<User> Items, int TotalCount)> GetPaginatedUsersAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.Users.Include(u => u.Role).AsNoTracking();
+            var totalCount = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return (items, totalCount);
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
         {
-            return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task CreateUserAsync(User user)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User> AddUserAsync(User user)
+        {
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            return user;
         }
 
         public async Task UpdateUserAsync(User user)
         {
+            user.UpdatedAt = DateTime.UtcNow;
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> UserExistsAsync(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
         public async Task SavePasswordResetTokenAsync(PasswordResetToken token)
@@ -53,32 +94,6 @@ namespace W_M_S_Project.Repositories
         {
             _context.PasswordResetTokens.Update(token);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<(System.Collections.Generic.IEnumerable<User> Users, int TotalCount)> GetUsersAsync(int page, int limit, string? search)
-        {
-            var query = _context.Users.Include(u => u.Role).AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                query = query.Where(u => u.Name.Contains(search) || u.Email.Contains(search));
-            }
-
-            var totalCount = await query.CountAsync();
-            var users = await query.Skip((page - 1) * limit).Take(limit).ToListAsync();
-
-            return (users, totalCount);
-        }
-
-        public async Task DeleteUserAsync(User user)
-        {
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<Role?> GetRoleByNameAsync(string roleName)
-        {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
         }
     }
 }

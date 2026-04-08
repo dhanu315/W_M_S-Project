@@ -7,8 +7,7 @@ using W_M_S_Project.Services;
 namespace W_M_S_Project.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,77 +17,56 @@ namespace W_M_S_Project.Controllers
             _userService = userService;
         }
 
+        // ? Get All Users
         [HttpGet]
-        public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int limit = 10, [FromQuery] string? search = null)
+        public async Task<IActionResult> GetUsers()
         {
-            if (page < 1) page = 1;
-            if (limit < 1) limit = 10;
-            if (limit > 100) limit = 100;
-
-            var (users, totalCount) = await _userService.GetUsersAsync(page, limit, search);
-
-            return Ok(new
-            {
-                TotalCount = totalCount,
-                Page = page,
-                Limit = limit,
-                Users = users
-            });
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
         }
 
+        // ? Get User By Id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUser(int id)
         {
-            var user = await _userService.GetUserResponseByIdAsync(id);
-            if (user == null) return NotFound(new { message = "User not found." });
+            var user = await _userService.GetUserByIdAsync(id);
+
+            if (user == null)
+                return NotFound();
 
             return Ok(user);
         }
 
+        // ? Create User
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+        public async Task<IActionResult> CreateUser(CreateUserDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var createdUser = await _userService.CreateUserAsync(dto);
-            if (createdUser == null)
-            {
-                return BadRequest(new { message = "Failed to create user. Email may be taken or Role may be invalid." });
-            }
-
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+            var user = await _userService.CreateUserAsync(dto);
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
+        // ? Update User
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
+        public async Task<IActionResult> UpdateUser(int id, UpdateUserDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var updatedUser = await _userService.UpdateUserAsync(id, dto);
+
             if (updatedUser == null)
-            {
-                return BadRequest(new { message = "Failed to update user. Email may be taken, Role invalid, or User not found." });
-            }
+                return NotFound();
 
             return Ok(updatedUser);
         }
 
+        // ? Delete User
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = await _userService.DeleteUserAsync(id);
-            if (!success)
-            {
-                return NotFound(new { message = "User not found." });
-            }
+            var result = await _userService.DeleteUserAsync(id);
 
-            return NoContent(); // 204
+            if (!result)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

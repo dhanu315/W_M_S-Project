@@ -1,13 +1,17 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace W_M_S_Project.Models
 {
-    public class Role
+    public class Permission
     {
+        [Key]
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty; // e.g., Admin, User
 
-        public ICollection<User> Users { get; set; } = new List<User>();
+        [Required]
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
+
         public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

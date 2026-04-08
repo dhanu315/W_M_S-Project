@@ -18,11 +18,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddSingleton<PasswordHasher>();
+
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -87,6 +93,9 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+// Use Global Exception Middleware
+app.UseMiddleware<ExceptionMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -102,3 +111,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
