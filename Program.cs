@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddSingleton<PasswordHasher>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

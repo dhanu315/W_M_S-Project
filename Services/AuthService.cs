@@ -12,13 +12,13 @@ namespace W_M_S_Project.Services
         private readonly IUserRepository _userRepository;
         private readonly JwtHelper _jwtHelper;
         private readonly PasswordHasher _passwordHasher;
-        private readonly EmailService _emailService;
+        private readonly IEmailService _emailService; // ? Fixed
 
         public AuthService(
             IUserRepository userRepository,
             JwtHelper jwtHelper,
             PasswordHasher passwordHasher,
-            EmailService emailService)
+            IEmailService emailService) // ? Fixed
         {
             _userRepository = userRepository;
             _jwtHelper = jwtHelper;
@@ -36,12 +36,11 @@ namespace W_M_S_Project.Services
                 Name = dto.Name,
                 Email = dto.Email,
                 PasswordHash = _passwordHasher.HashPassword(dto.Password),
-                RoleId = 2 // Default to Member or similar
+                RoleId = 2
             };
 
             await _userRepository.AddUserAsync(user);
-            
-            // Reload user with role info for token generation if needed
+
             var createdUser = await _userRepository.GetUserByEmailAsync(user.Email);
             return _jwtHelper.GenerateToken(createdUser!);
         }
@@ -70,7 +69,6 @@ namespace W_M_S_Project.Services
 
             await _userRepository.SavePasswordResetTokenAsync(resetToken);
             await _emailService.SendEmailAsync(email, "Password Reset", $"Your reset token is: {token}");
-
             return true;
         }
 
@@ -88,7 +86,6 @@ namespace W_M_S_Project.Services
 
             resetToken.IsUsed = true;
             await _userRepository.UpdatePasswordResetTokenAsync(resetToken);
-
             return true;
         }
     }
